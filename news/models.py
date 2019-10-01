@@ -44,10 +44,19 @@ class Article(models.Model):
     def today_news(cls):
         today = dt.date.today()
         news = cls.objects.filter(pub_date__date = today)
+        
         return news
     
     
     @classmethod
     def days_news(cls, date):
         news = cls.objects.filter(pub_date__date = date)
+        
+        return news
+    
+    
+    @classmethod
+    def search_by_title(cls, search_term):
+        news = cls.objects.filter(title__icontains=search_term)
+        
         return news
