@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404 # responsible for returning a response to a user
+from django.http import HttpResponse, Http404, HttpResponseRedirect # responsible for returning a response to a user
 import datetime as dt
 from .models import Article
 from .forms import NewsLetterForm
@@ -20,7 +20,11 @@ def news_today(request):
         form = NewsLetterForm(request.POST)
         
         if form.is_valid():
-            print('valid')
+            name = form.cleaned_data['your_name']
+            email = form.cleaned_data['email']
+            recepient = NewsLetterRecepients(name = name, email = email)
+            recepient.save()
+            HttpResponseRedirect('news_today')
             
     else:
         form = NewsLetterForm()
