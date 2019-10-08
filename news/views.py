@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404 # responsible for returning a response to a user
 import datetime as dt
 from .models import Article
+from .forms import NewsLetterForm
 
 
 # Create your views here.
@@ -13,7 +14,9 @@ def welcome(request):
 def news_today(request):
     date = dt.date.today()
     news = Article.today_news()
+    print(news)
     
+        
     return render(request, 'all-news/today-news.html', {"date": date, "news": news})
 
 def convert_dates(dates):
@@ -63,3 +66,14 @@ def search_results(request):
     else:
         message = "You haven't searched for any term"
         return render(request, 'all-news/search.html', {"message": message})
+    
+    
+    
+def article(request, article_id):
+    try:
+        article = Article.objects.get(id = article_id)
+        
+    except DoesNotExist:
+        raise Http404()
+    
+    return render(request, "all-news/article.html", {"article": article})
