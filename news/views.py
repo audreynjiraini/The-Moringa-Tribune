@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404, HttpResponseRedirect # responsible for returning a response to a user
+from django.http import HttpResponse, Http404,HttpResponseRedirect # responsible for returning a response to a user
 import datetime as dt
-from .models import Article, NewsLetterRecipients
-from .forms import NewsLetterForm
+from .models import Article, NewsLetterRecipients, tags
+from .forms import  NewArticleForm, NewsLetterForm
 from .email import send_welcome_email
 from django.contrib.auth.decorators import login_required
 
@@ -16,7 +16,6 @@ def welcome(request):
 def news_today(request):
     date = dt.date.today()
     news = Article.today_news()
-    print(news)
     
     if request.method == 'POST':
         form = NewsLetterForm(request.POST)
@@ -95,3 +94,21 @@ def article(request, article_id):
         raise Http404()
     
     return render(request, "all-news/article.html", {"article": article})
+
+@login_required(login_url='/accounts/login/')
+def new_article(request):
+    current_user = request.user
+    if request.method == 'POST':
+        form = NewArticleForm(request.POST, request.FILES) # we pass in the request.FILES argument because we are going to be uploading an image file and we want to process that in our form
+        
+        if form.is_valid():
+            article = form.save(commit=False) # we pass in commit = False to prevent it from saving to the database
+            article.editor = current_user # we update the oject editor attribute by setting it to the current user. We get the current user by checking the request
+            article.save()
+            
+        return redirect('newsToday')
+    
+    else:
+        form = NewArticleForm()
+    
+    return render(request, 'new_article.html', {"form": form})
